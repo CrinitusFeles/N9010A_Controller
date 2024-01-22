@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>511</width>
-    <height>557</height>
+    <width>532</width>
+    <height>704</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="verticalLayout_8">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_14">
      <item>
@@ -107,24 +107,35 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_10">
+         <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QPushButton" name="save_screen_button">
-            <property name="text">
-             <string>Save screen</string>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_10">
+            <item>
+             <widget class="QPushButton" name="save_screen_button">
+              <property name="text">
+               <string>Save screen</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="screenshot_filename_line_edit">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="placeholderText">
+               <string>filename.ext</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
-           <widget class="QLineEdit" name="screenshot_filename_line_edit">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="placeholderText">
-             <string>filename.ext</string>
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>Saved images path:  &quot;My Documents/SA/screen/&quot;</string>
             </property>
            </widget>
           </item>
@@ -209,6 +220,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="currentIndex">
+             <number>2</number>
+            </property>
             <item>
              <property name="text">
               <string>Hz</string>
@@ -256,6 +270,9 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="currentIndex">
+             <number>2</number>
             </property>
             <item>
              <property name="text">
@@ -323,6 +340,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="currentIndex">
+             <number>2</number>
+            </property>
             <item>
              <property name="text">
               <string>Hz</string>
@@ -370,6 +390,9 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="currentIndex">
+             <number>2</number>
             </property>
             <item>
              <property name="text">
@@ -427,12 +450,15 @@
           <item>
            <widget class="QLabel" name="label_6">
             <property name="text">
-             <string>Trig min, dBm</string>
+             <string>Threshold, dBm</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QSpinBox" name="trig_min_spin_box">
+            <property name="minimum">
+             <number>-200</number>
+            </property>
             <property name="maximum">
              <number>30</number>
             </property>
@@ -445,12 +471,19 @@
           <item>
            <widget class="QLabel" name="label_7">
             <property name="text">
-             <string>Trig max, dBm</string>
+             <string>Min delta, dBm</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="trig_max_spin_box"/>
+           <widget class="QSpinBox" name="trig_max_spin_box">
+            <property name="minimum">
+             <number>-200</number>
+            </property>
+            <property name="maximum">
+             <number>30</number>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -485,6 +518,31 @@
          </layout>
         </item>
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_18">
+          <item>
+           <widget class="QLabel" name="label_14">
+            <property name="text">
+             <string>Auto restart</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="auto_restart_check_box">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton">
+          <property name="text">
+           <string>Restart Measure</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="measure_peaks_button">
           <property name="text">
            <string>Measure Peaks</string>
@@ -508,76 +566,14 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>CH num</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="meas_ch_num_line_edit">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
-          <item>
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>Amplitude, dBm</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="meas_ampl_line_edit">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_5">
-          <item>
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>Freq</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="meas_freq_line_edit">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <widget class="QTableWidget" name="meas_result_table">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

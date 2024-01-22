@@ -1,8 +1,8 @@
-
-# import time
+from queue import Empty, Queue
 import socket
 from threading import Thread
 import time
+from typing import Callable
 
 from loguru import logger
 
@@ -20,15 +20,28 @@ class SocketClient:
         self._running_flag = False
         self._thread: Thread
         self._connection_status: bool = False
+        self._tx_queue = Queue()
 
     def _routine(self) -> None:
         try:
             while self._running_flag:
-                msg: bytes = self._socket.recv(1024)
-                if not msg:
-                    break
-                logger.debug("ATS Emulator got from server < ", msg)
-                self.received.emit(msg)
+                handler = None
+                try:
+                    tx_data, handler = self._tx_queue.get_nowait()
+                    logger.debug(f'sending: {tx_data}')
+                    self._socket.send(tx_data)
+                except Empty:
+                    pass
+                try:
+                    msg: bytes = self._socket.recv(1024)
+                    if not msg:
+                        break
+                    logger.debug(f"answer: < {msg}")
+                    self.received.emit(msg)
+                    if handler:
+                        handler(msg)
+                except TimeoutError:
+                    pass
                 time.sleep(0.1)
         except ConnectionResetError as err:
             logger.error(f'Lost connection with server: {err}')
@@ -41,6 +54,7 @@ class SocketClient:
 
     def _connect_routine(self) -> bool:
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._socket.settimeout(0.2)
         try:
             self._socket.connect((self._host, self._port))
             self._connection_status = True
@@ -53,18 +67,24 @@ class SocketClient:
             logger.error(f'\nLost connection with server: {err}')
             self.disconnect()
             return False
+        except TimeoutError:
+            logger.error('Timeout error! Probably incorrect ip/port or '\
+                         'device is not powered on')
+            return False
 
         self._running_flag = True
-        self._thread = Thread(target=self._routine, daemon=True)
+        self._thread = Thread(name='N9010A_routine', target=self._routine,
+                              daemon=True)
         self._thread.start()
         return True
 
     def connect(self, host: str | None = None, port: int | None = None) -> bool:
         self._host = host if host else self._host
         self._port = port if port else self._port
-        while not self._connect_routine():
-            time.sleep(1)
-        return True
+        return self._connect_routine()
+        # while not self._connect_routine():
+        #     time.sleep(1)
+        # return True
 
     def disconnect(self) -> None:
         if self._running_flag:
@@ -74,9 +94,9 @@ class SocketClient:
             self._socket.close()
             self.disconnected.emit()
 
-    def send(self, data: bytes) -> None:
+    def send(self, data: tuple[bytes, Callable | None]) -> None:
         if self._connection_status:
-            self._socket.send(data)
+            self._tx_queue.put_nowait(data)
 
 
 if __name__ == "__main__":
@@ -87,7 +107,7 @@ if __name__ == "__main__":
         client.connect()
         while True:
             in_data = input('>')
-            client.send(in_data.encode('utf-8'))
+            client.send((in_data.encode('utf-8'), None))
     except KeyboardInterrupt:
         client.disconnect()
         # server.stop()
