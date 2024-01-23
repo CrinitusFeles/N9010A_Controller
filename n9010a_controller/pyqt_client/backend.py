@@ -1,3 +1,4 @@
+from ast import literal_eval
 from threading import Thread
 import time
 from pathlib import Path
@@ -21,6 +22,7 @@ class N9010A_Controller(QtWidgets.QWidget):
     set_freq_span_button: QtWidgets.QPushButton
     measure_peaks_button: QtWidgets.QPushButton
     power_down_button: QtWidgets.QPushButton
+    restart_measure_button: QtWidgets.QPushButton
 
     start_freq_spin_box: QtWidgets.QSpinBox
     stop_freq_spin_box: QtWidgets.QSpinBox
@@ -51,14 +53,17 @@ class N9010A_Controller(QtWidgets.QWidget):
         self._timer.timeout.connect(lambda: self.fill_table(self.peaks))
         self._timer.start(100)
 
+    def connection_status(self) -> bool:
+        return self.device.connection_status()
+
     def fill_table(self, values: list) -> None:
         if not values:
             return
         self.meas_result_table.setRowCount(len(values))
         self.meas_result_table.setColumnCount(2)
-        self.meas_result_table.setItem(0,0, QtWidgets.QTableWidgetItem("Freq"))
-        self.meas_result_table.setItem(0,1, QtWidgets.QTableWidgetItem("Ampl"))
-        for i, (freq, ampl) in enumerate(values, start=1):
+        header_labels: list[str] = ["Amplitude, dBm", "Frequency, Hz"]
+        self.meas_result_table.setHorizontalHeaderLabels(header_labels)
+        for i, (freq, ampl) in enumerate(values):
             self.meas_result_table.setItem(i, 0, QtWidgets.QTableWidgetItem(f"{freq}"))
             self.meas_result_table.setItem(i, 1, QtWidgets.QTableWidgetItem(f"{ampl}"))
         header = self.meas_result_table.horizontalHeader()
@@ -74,16 +79,38 @@ class N9010A_Controller(QtWidgets.QWidget):
                                    daemon=True)
         connection_thread.start()
 
-    def on_successfull_connection(self):
+    def on_successfull_connection(self) -> None:
         self.device.send((self.api.identification_query(), None))
         self.device.send((self.api.set_mode('SA'), None))
         self.device.send((self.api.start_swept_sa_measures(), None))
+        # self.device.send((self.api.set_start_freq(867, 'MHZ'), None))
+        # self.device.send((self.api.set_stop_freq(869, 'MHZ'), None))
+        # self.device.send((self.api.set_center_freq(869, 'MHZ'), None))
+        # self.device.send((self.api.set_freq_span(150, 'KHZ'), None))
+        self.device.send((self.api.get_center_freq(), self.center_freg_handler))
+        self.device.send((self.api.get_freq_span(), self.span_handler))
+        self.device.send((self.api.get_start_freq(), self.start_freq_handler))
+        self.device.send((self.api.get_stop_freq(), self.stop_freq_handler))
+        self.device.send((self.api.get_threshold(), self.threshold_handler))
         self.device.send((self.api.set_continues_sweep(), None))
         self.device.send((self.api.set_trace_type(1, 'MAXH'), None))
         self.device.send((self.api.set_continues_peak_search(1, True), None))
-        self.device.send((self.api.get_current_measure_config(), None))
         self.device.send((self.api.set_peak_table_state(True), None))
 
+    def center_freg_handler(self, data: bytes) -> None:
+        self.center_freq_spin_box.setValue(int(literal_eval(data.decode()) // 1e6))
+
+    def span_handler(self, span_data: bytes) -> None:
+        self.span_freq_spin_box.setValue(int(literal_eval(span_data.decode()) // 1e3))
+
+    def start_freq_handler(self, start_freq: bytes) -> None:
+        self.start_freq_spin_box.setValue(int(literal_eval(start_freq.decode()) // 1e6))
+
+    def stop_freq_handler(self, stop_freq: bytes) -> None:
+        self.stop_freq_spin_box.setValue(int(literal_eval(stop_freq.decode()) // 1e6))
+
+    def threshold_handler(self, threshold: bytes) -> None:
+        self.trig_min_spin_box.setValue(int(literal_eval(threshold.decode())))
 
     def on_set_freq_button_pressed(self) -> None:
         units_start: str = self.start_freq_units_combo_box.currentText().upper()
@@ -91,10 +118,10 @@ class N9010A_Controller(QtWidgets.QWidget):
         units_stop: str = self.stop_freq_units_combo_box.currentText().upper()
         stop_freq: int = self.stop_freq_spin_box.value()
 
-        self.device.send(self.api.set_start_freq(start_freq,
-                                                 units_start))  # type: ignore
-        self.device.send(self.api.set_stop_freq(stop_freq,
-                                                units_stop))  # type: ignore
+        self.device.send((self.api.set_start_freq(start_freq,
+                                                 units_start), None))  # type: ignore
+        self.device.send((self.api.set_stop_freq(stop_freq,
+                                                units_stop), None))  # type: ignore
 
 
     def on_set_freq_span_button_pressed(self) -> None:
@@ -103,10 +130,10 @@ class N9010A_Controller(QtWidgets.QWidget):
         units_span: str = self.span_freq_units_combo_box.currentText().upper()
         span_freq: int = self.span_freq_spin_box.value()
 
-        self.device.send(self.api.set_center_freq(start_freq,
-                                                  units_cent))  # type: ignore
-        self.device.send(self.api.set_freq_span(span_freq,
-                                                units_span))  # type: ignore
+        self.device.send((self.api.set_center_freq(start_freq,
+                                                  units_cent), None))  # type: ignore
+        self.device.send((self.api.set_freq_span(span_freq,
+                                                units_span), None))  # type: ignore
 
     def parse_peak_data(self, data: bytes) -> None:
         self.peaks = self.api.parse_measured_data(data)
@@ -116,17 +143,17 @@ class N9010A_Controller(QtWidgets.QWidget):
         trig_min: int = self.trig_min_spin_box.value()
         order_list: list[str] = ['AMPL', 'FREQ', 'TIME']
         peak_order: str = order_list[self.peak_order_combo_box.currentIndex()]
-        self.device.send(self.api.calculate_peaks(1, trig_min, trig_max,
-                                                  peak_order, 'GTDL'))  # type: ignore
+        self.device.send((self.api.calculate_peaks(1, trig_min, trig_max,
+                                                   peak_order),  # type: ignore
+                          self.parse_peak_data))
         if self.auto_restart_check_box.isChecked():
             time.sleep(0.1)
-            self.device.send((self.api.restart_measure(),
-                              self.parse_peak_data))
+            self.device.send((self.api.restart_measure(), None))
 
     def on_set_color_theme_button_pressed(self) -> None:
         themes: list[str] = ['TDC', 'TDM', 'FCOL', 'FMON']
         theme: str = themes[self.theme_combo_box.currentIndex()]
-        self.device.send(self.api.set_screenshot_theme(theme))  # type: ignore
+        self.device.send((self.api.set_screenshot_theme(theme), None))  # type: ignore
 
     def on_save_screen_button_pressed(self) -> None:
         filename: str = self.screenshot_filename_line_edit.text()
@@ -134,6 +161,9 @@ class N9010A_Controller(QtWidgets.QWidget):
 
     def on_power_down_button_pressed(self) -> None:
         self.device.send((self.api.power_down('NORMAL'), None))
+
+    def on_restart_measure_button_pressed(self):
+        self.device.send((self.api.restart_measure(), None))
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication([])

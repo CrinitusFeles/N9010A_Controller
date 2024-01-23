@@ -37,12 +37,20 @@ class N9010A_API:
     @staticmethod
     def calculate_peaks(ch: int, threshold: int, excursion: int,
                         order: Literal['AMPL', 'FREQ', 'TIME'] = 'AMPL',
-                        peaks: Literal['ALL', 'GTDL', 'LTDL'] = 'GTDL') -> bytes:
+                        peaks: Literal['ALL', 'GTDL', 'LTDL'] = 'ALL') -> bytes:
         """Returns a list of all the peaks for the currently selected
         measurement and sub-opcode [n]. The peaks must meet the requirements
         of the peak threshold and excursion values"""
         cmd = f":CALC:DATA{ch}:PEAK? {threshold},{excursion},{order},{peaks}\n"
         return cmd.encode('ascii')
+
+    @staticmethod
+    def set_threshold(threshold: int) -> bytes:
+        return f':CALC:MARK:PEAK:THR {threshold}\n'.encode('ascii')
+
+    @staticmethod
+    def get_threshold() -> bytes:
+        return ':CALC:MARK:PEAK:THR?\n'.encode('ascii')
 
     @staticmethod
     def restart_measure() -> bytes:
@@ -181,7 +189,7 @@ class N9010A_API:
     def save_screenshot(name: str) -> bytes:
         """Saves the screen image to the specified file using the selected
         theme. """
-        return f":MMEM:STOR:SCR \"{name}\"\n".encode('ascii')
+        return f":MMEM:STOR:SCR \"{name}.png\"\n".encode('ascii')
 
     @staticmethod
     def set_screenshot_theme(theme: Literal['TDC', 'TDM', 'FCOL', 'FMON']):

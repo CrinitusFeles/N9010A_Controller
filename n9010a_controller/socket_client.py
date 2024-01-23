@@ -98,6 +98,9 @@ class SocketClient:
         if self._connection_status:
             self._tx_queue.put_nowait(data)
 
+    def connection_status(self) -> bool:
+        return self._connection_status
+
 
 if __name__ == "__main__":
     # server = SocketServer('localhost', 8083)
