@@ -12,6 +12,21 @@ files = [
 ]
 
 [[package]]
+name = "event"
+version = "0.1.0"
+description = ""
+optional = false
+python-versions = "^3.10"
+files = []
+develop = false
+
+[package.source]
+type = "git"
+url = "https://github.com/CrinitusFeles/Event.git"
+reference = "HEAD"
+resolved_reference = "325665f2afeb0504edbf014c458f444e2dc9802f"
+
+[[package]]
 name = "loguru"
 version = "0.7.2"
 description = "Python logging made (stupidly) simple"
@@ -90,6 +105,36 @@ files = [
 ]
 
 [[package]]
+name = "python-tcp"
+version = "0.1.0"
+description = ""
+optional = false
+python-versions = "^3.10"
+files = []
+develop = false
+
+[package.dependencies]
+event = {git = "https://github.com/CrinitusFeles/Event.git"}
+loguru = "^0.7.2"
+
+[package.source]
+type = "git"
+url = "https://github.com/CrinitusFeles/PythonTCP.git"
+reference = "HEAD"
+resolved_reference = "3bd87f7e46db7bc5d1604915999eb21405cfe71d"
+
+[[package]]
+name = "qasync"
+version = "0.27.1"
+description = "Python library for using asyncio in Qt-based applications"
+optional = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "qasync-0.27.1-py3-none-any.whl", hash = "sha256:5d57335723bc7d9b328dadd8cb2ed7978640e4bf2da184889ce50ee3ad2602c7"},
+    {file = "qasync-0.27.1.tar.gz", hash = "sha256:8dc768fd1ee5de1044c7c305eccf2d39d24d87803ea71189d4024fb475f4985f"},
+]
+
+[[package]]
 name = "win32-setctime"
 version = "1.1.0"
 description = "A small Python utility to set file creation time on Windows"
@@ -106,4 +151,4 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "8f15084e47e1cf6f13ae6eb6d46fcab15266309ee04bcfaa4fa040165ddb9d80"
+content-hash = "3e9aecbc45f405f6c373dc34dc56c6238b4d4b4656d5c9af7dc58451b8334dfb"
