@@ -12,6 +12,8 @@ loguru = "^0.7.2"
 event = {git = "https://github.com/CrinitusFeles/Event.git"}
 python-tcp = {git = "https://github.com/CrinitusFeles/PythonTCP.git"}
 qasync = "^0.27.1"
+numpy = "^2.2.3"
+matplotlib = "^3.10.1"
 
 
 [build-system]

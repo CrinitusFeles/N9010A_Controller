@@ -69,8 +69,20 @@ class N9010A_API:
         return 'CONF?\n'.encode('ascii')
 
     @staticmethod
-    def set_continues_sweep() -> bytes:
-        return ':INIT:CONT ON\n'.encode('ascii')
+    def get_res_bandwidth():
+        return ':BAND?\n'.encode('ascii')
+
+    @staticmethod
+    def set_res_bandwidth(val: int, units: Literal['HZ', 'KHZ', 'MHZ'] = 'HZ'):
+        return f':BAND {val} {units}\n'.encode('ascii')
+
+    @staticmethod
+    def get_video_bandwidth():
+        return ':BAND:VID?\n'.encode('ascii')
+
+    @staticmethod
+    def set_video_bandwidth(val: int, units: Literal['HZ', 'KHZ', 'MHZ'] = 'HZ'):
+        return f':BAND:VID {val} {units}\n'.encode('ascii')
 
     @staticmethod
     def start_swept_sa_measures() -> bytes:
@@ -158,9 +170,70 @@ class N9010A_API:
         which means that both the center frequency and span will change."""
         return f":SENS:FREQ:STOP {val} {units}\n".encode('ascii')
 
+
     @staticmethod
     def get_stop_freq() -> bytes:
         return ":SENS:FREQ:STOP?\n".encode('ascii')
+
+    @staticmethod
+    def init_san() -> bytes:
+        return ":INIT:SAN\n".encode('ascii')
+
+    @staticmethod
+    def read_san(num: int) -> bytes:
+        return f":READ:SAN{num}?\n".encode('ascii')
+
+    @staticmethod
+    def set_continuous_sweep(state: bool) -> bytes:
+        return f":INIT:CONT {int(state)}\n".encode('ascii')
+
+    @staticmethod
+    def restart_sweep() -> bytes:
+        return ":INIT:IMM\n".encode('ascii')
+
+    @staticmethod
+    def set_mech_attenuation(val: int) -> bytes:
+        return f":POW:ATT {val}\n".encode('ascii')
+
+    @staticmethod
+    def get_mech_attenuation() -> bytes:
+        return ":POW:ATT?\n".encode('ascii')
+
+    @staticmethod
+    def get_mech_attenuation_auto_status() -> bytes:
+        return ":POW:ATT:AUTO?\n".encode('ascii')
+
+    @staticmethod
+    def set_mech_attenuation_auto_status(state: bool) -> bytes:
+        return f":POW:ATT:AUTO {int(state)}\n".encode('ascii')
+
+    @staticmethod
+    def set_electronic_attenuation(val: int) -> bytes:
+        return f":POW:EATT {val}\n".encode('ascii')
+
+    @staticmethod
+    def get_electronic_attenuation() -> bytes:
+        return ":POW:EATT?\n".encode('ascii')
+
+    @staticmethod
+    def set_points_amount(val: int) -> bytes:
+        return f":SWE:POIN {val}\n".encode('ascii')
+
+    @staticmethod
+    def set_averaging(val: bool) -> bytes:
+        return f":AVER {int(val)}\n".encode('ascii')
+
+    @staticmethod
+    def set_averaging_amount(val: int) -> bytes:
+        return f":AVER:COUN {val}\n".encode('ascii')
+
+    @staticmethod
+    def get_averaging_amount() -> bytes:
+        return ":AVER:COUN?\n".encode('ascii')
+
+    @staticmethod
+    def get_points_amount() -> bytes:
+        return ":SWE:POIN?\n".encode('ascii')
 
     @staticmethod
     def set_freq_span(val: int,
